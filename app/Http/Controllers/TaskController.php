@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreTaskRequest;
 use Illuminate\Support\Facades\Artisan;
+use Spatie\Activitylog\Models\Activity;
 
 class TaskController extends Controller
 {
@@ -26,7 +27,6 @@ class TaskController extends Controller
         $this->task=new Task();
     }
 
-    /* Start Main Task Methods */
     public function index()
     {
         $clients=$this->client->get_clients();
@@ -34,6 +34,7 @@ class TaskController extends Controller
         $main_tasks=Task::where('type','main')->paginate(15);
         return view('task.main.index', compact('main_tasks','clients','users'));
     }
+
     public function store(Request $request)
     {
         $current_time = now();
@@ -46,6 +47,7 @@ class TaskController extends Controller
                  'type'=>'main',
                  'main_id'=> $uuid,
                 ]);
+            $this->activities($task->main_id);
             if($request->notify)
             {
                 $this->notify_all_operation_store_task($task);
@@ -69,10 +71,11 @@ class TaskController extends Controller
         $current_time = now();
         if($request->dateline > $current_time->format('Y-m-d H:i:s'))
         {
-            Task::where('id',$task->id)->update([
+            $task->update([
                 ...$request->except(['_token','notify','_method']),
                  'assigned_by'=>auth()->user()->id,
                 ]);
+            $this->activities($task->main_id);
             if($request->notify)
             {
                 if($log_message)
@@ -113,6 +116,27 @@ class TaskController extends Controller
              return redirect()->back()->with(['error'=>'date not invalid']);
         }
     }
+
+    public function delete($id)
+    {
+        $task=Task::where('id',$id)->first();
+        if($task->type =="main")
+        {
+            $tasks=Task::where('main_id',$task->main_id)->get();
+            foreach($tasks as $task) {
+                $task->delete();
+                $this->activities($task->main_id);
+            }
+            return redirect()->route('task.index')->with(['success'=>'Delete Successfully']);
+        }
+        else
+        {
+            $task->delete();
+            $this->activities($task->main_id);
+            return redirect()->back()->with(['success'=>'Delete Successfully']);
+        }
+    }
+
 
 
 

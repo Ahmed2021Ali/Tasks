@@ -9,6 +9,7 @@ use App\Http\traits\media;
 use App\Models\LogMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Spatie\Activitylog\Models\Activity;
 
 class SubTaskController extends Controller
 {
@@ -24,6 +25,7 @@ class SubTaskController extends Controller
         $this->user=new User();
         $this->main_task_id=new Task();
     }
+
     public function index($main_id)
     {
         $users=$this->user->get_users();
@@ -31,8 +33,10 @@ class SubTaskController extends Controller
         $main_task =$this->main_task_id->get_main_task($main_id);
         $sub_tasks = Task::where('main_id',$main_id)->get();
         $log_messages=LogMessage::where('main_id',$main_id)->get();
-        return view('task.sub.index',compact('main_task','sub_tasks','users','clients','log_messages'));
+        $logs= Activity::where('log_name' ,$main_id)->get();
+        return view('task.sub.index',compact('main_task','sub_tasks','users','clients','log_messages','logs'));
     }
+
     public function store(Request $request,$main_id)
     {
         $main_task =$this->main_task_id->get_main_task($main_id);
@@ -46,6 +50,7 @@ class SubTaskController extends Controller
                  'main_id'=> $main_id,
                  'client_id'=>$main_task->client_id,
                 ]);
+                $this->activities($task->main_id);
                 if($request->notify)
                 {
                     $this->notify_all_operation_store_task($task);
@@ -61,6 +66,7 @@ class SubTaskController extends Controller
              return redirect()->back()->with(['error'=>'date not invalid']);
         }
     }
+
     public function extend_option(Request $request,$id)
     {
         $task = Task::where('id',$id)->first();
@@ -79,13 +85,15 @@ class SubTaskController extends Controller
                 'assigned_by'=>$task->assigned_to,
                 'extend_request'=>$request->extend_request,
                 'client_id'=>$task->client_id,
-                'type'=>$task->type,
+                'type'=>"option",
                 'main_id'=>$task->main_id,
                 'extended'=>$task->id
                 ]);
+            $this->activities($task->main_id);
         }
         return redirect()->back()->with(['success'=>'Save Date successfully']);
     }
+
     public function extend_status(Request $request,$id)
     {
         $task = Task::where('id',$id)->first();
@@ -103,8 +111,9 @@ class SubTaskController extends Controller
                 'main_id'=>$task_old->main_id,
                 'type'=>$task_old->type,
                 ]);
-                Task::where('id',$task->id)->update(['status'=>'1','type'=>'prove']);
-                Task::where('id',$task_old->id)->update(['status'=>'1','type'=>'extended']);
+                $this->activities($task->main_id);
+                $task->update(['status'=>'1','type'=>'prove']);
+                $task_old->update(['status'=>'1','type'=>'extended']);
             $this->notify_without_client_operation_store_task($task_notify);
 
         }
@@ -118,22 +127,32 @@ class SubTaskController extends Controller
         }
         return redirect()->back()->with(['success'=>'Save Date successfully']);
     }
+
     public function upload_file(Request $request,$id)
     {
+        $current_time=now();
+
         $task = Task::where('id',$id)->first();
         if($task)
         {
             $file = $request->file->store('Files_Task', 'public'); // Store each photo in the 'public/attachment' directory
-            Task::where('id',$task->id)->update(['file'=>$file]);
+            $task->update([
+                'file'=>$file,
+                'delivery_time'=>$current_time->format('Y-m-d H:i:s'),
+            ]);
+            $this->activities($task->main_id);
+            $this->delay_upload_file($task);
         }
         return redirect()->back()->with(['success'=>'Save File successfully']);
     }
+
     public function download_file(Request $request,$id)
     {
         $task_file = Task::where('id',$id)->first()->file;
         $file = storage_path('app/public/' . $task_file);
         return response()->file($file);
     }
+
     public function status($id)
     {
         $task = Task::where('id',$id)->first();
@@ -146,12 +165,16 @@ class SubTaskController extends Controller
             }
             else
             {
-                Task::where('id',$id)->update(['status'=>1]);
+                $task->update(['status'=>1]);
+                $this->activities($task->main_id);
+
             }
         }
         elseif($task->type == "sub")
         {
-            Task::where('id',$id)->update(['status'=>1]);
+            $task->update(['status'=>1]);
+            $this->activities($task->main_id);
+
         }
         else
         {

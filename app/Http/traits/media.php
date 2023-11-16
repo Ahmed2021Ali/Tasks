@@ -2,8 +2,11 @@
 
 namespace App\Http\traits;
 
+use App\Models\Report;
+use App\Models\Task;
 use App\Models\LogMessage;
 use Illuminate\Support\Facades\Artisan;
+use Spatie\Activitylog\Models\Activity;
 
 trait media
 {
@@ -35,6 +38,7 @@ trait media
                 'status'=>'Done',
                 'main_id'=>$task->main_id,
             ]);
+            $this->activities($task->main_id);
         }
          catch (\Exception $e)
         {
@@ -47,6 +51,7 @@ trait media
                 'status'=>'Failed',
                 'main_id'=>$task->main_id,
             ]);
+            $this->activities($task->main_id);
         }
     }
 
@@ -73,6 +78,8 @@ trait media
                 'status'=>'Done',
                 'main_id'=>$task->main_id,
             ]);
+            $this->activities($task->main_id);
+
         }
          catch (\Exception $e)
         {
@@ -84,12 +91,15 @@ trait media
                 'status'=>'Failed',
                 'main_id'=>$task->main_id,
             ]);
+            $this->activities($task->main_id);
+
         }
     }
 
     // operation update task , Notify all user (Assigned To and Assigned By)
      public function notify_without_client_operation_update_task($task)
     {
+        $logMessage=LogMessage::where('task_id', $task->id)->first();
             try
             {
                 $message=$task->title;
@@ -102,29 +112,33 @@ trait media
                 Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
                 Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
                 });
-                LogMessage::where('task_id', $task->id)->update([
+                $logMessage->update([
                     'task_id'=>$task->id,
                     'message'=>$message,
                     'assigned_to'=>$task->assigned_to,
                     'assigned_by'=>$task->assigned_by,
                     'status'=>'Done'
                 ]);
+                $this->activities($task->main_id);
+
             }
              catch (\Exception $e)
             {
-                LogMessage::where('task_id', $task->id)->update([
+                $logMessage->update([
                     'task_id'=>$task->id,
                     'message'=>$message,
                     'assigned_to'=>$task->assigned_to,
                     'assigned_by'=>$task->assigned_by,
                     'status'=>'Failed'
                 ]);
+                $this->activities($task->main_id);
             }
     }
 
     // operation update task , Notify all user (Assigned To and Assigned By) and client
     public function notify_all_operation_update_task($task)
     {
+        $logMessage=LogMessage::where('task_id', $task->id)->first();
         try
         {
             $message=$task->title;
@@ -140,7 +154,7 @@ trait media
             Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
             Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
            });
-            LogMessage::where('task_id', $task->id)->update([
+            $logMessage->update([
                 'task_id'=>$task->id,
                 'message'=>$message,
                 'client_id'=>$task->client_id,
@@ -148,10 +162,11 @@ trait media
                 'assigned_by'=>$task->assigned_by,
                 'status'=>'Done'
             ]);
+            $this->activities($task->main_id);
         }
          catch (\Exception $e)
         {
-            LogMessage::where('task_id', $task->id)->update([
+            $logMessage->update([
                 'task_id'=>$task->id,
                 'message'=>$message,
                 'client_id'=>$task->client_id,
@@ -159,12 +174,14 @@ trait media
                 'assigned_by'=>$task->assigned_by,
                 'status'=>'Failed'
             ]);
+            $this->activities($task->main_id);
+
         }
     }
-
     // operation update task , Notify  client Only
     public function notify_client_only_operation_update_task($task)
     {
+        $logMessage=LogMessage::where('task_id', $task->id)->first();
         try
         {
             $message=$task->title;
@@ -174,23 +191,26 @@ trait media
              dispatch(function() use ($phone_client,$message){
                 Artisan::call('app:notify-client', ['phone' => $phone_client, 'message' => $message]);
             });
-                LogMessage::where('task_id',$task->id)->update([
+            $logMessage->update([
                     'task_id'=>$task->id,
                     'message'=>$message,
                     'client_id'=>$task->client_id,
                     'status'=>'Done'
                 ]);
-            }
+            $this->activities($task->main_id);
+        }
              catch (\Exception $e)
             {
-                LogMessage::where('task_id',$task->id)->update([
+                $logMessage->update([
                     'task_id'=>$task->id,
                     'message'=>$message,
                     'client_id'=>$task->client_id,
                     'status'=>'Failed'
                 ]);
             }
+        $this->activities($task->main_id);
     }
+    // operation filed Notify , Notify  All User and Client
     public function notify_all_again($log_message)
     {
         try
@@ -208,17 +228,20 @@ trait media
             Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
             Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
            });
-            LogMessage::where('id', $log_message->id)->update([
+            $log_message->update([
                 'status'=>'Done'
             ]);
+            $this->activities($log_message->task->main_id);
         }
          catch (\Exception $e)
          {
-            LogMessage::where('id', $log_message->id)->update([
+             $log_message->update([
                 'status'=>'Failed'
             ]);
-        }
+             $this->activities($log_message->task->main_id);
+         }
     }
+        // operation filed Notify , Notify all user (Assigned To and Assigned By)
     public function notify_without_client_again($log_message)
     {
         try
@@ -233,17 +256,53 @@ trait media
             Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
             Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
            });
-            LogMessage::where('id', $log_message->id)->update([
+            $log_message->update([
                 'status'=>'Done'
             ]);
+            $this->activities($log_message->task->main_id);
         }
          catch (\Exception $e)
          {
-            LogMessage::where('id', $log_message->id)->update([
+             $log_message->update([
                 'status'=>'Failed'
             ]);
-        }
+             $this->activities($log_message->task->main_id);
+         }
     }
 
+    public function report($id)
+    {
+        $done_tasks=Task::where('status', '1')->where('assigned_to','=',$id)->where('type', 'main')->OrWhere('type', 'sub')->count();
+        $total_tasks=Task::where('assigned_to',$id)->where('type', 'main')->OrWhere('type', 'sub')->count();
+
+        if( $done_tasks > 0 && $total_tasks > 0)
+        {
+           $Rate = ($done_tasks / $total_tasks) * 100 ;
+        }
+        Report::where('user_id',$id)->update([
+            'task_created'=>$total_tasks?? '0',
+            'task_done'=>$done_tasks?? '0',
+            'Rate'=> $Rate?? '0',
+        ]);
+    }
+
+    public function delay_upload_file($task)
+    {
+       if($task->dateline > $task->delivery_time)
+       {
+             $task->update(['delay_upload_file'=>'Yes']);
+       }
+       else
+       {
+           $task->update(['delay_upload_file'=>'No']);
+       }
+    }
+
+    public function activities($main_id)
+    {
+        $activity= Activity::all()->last();
+        $activity->log_name=$main_id;
+        $activity->save();
+    }
 
 }

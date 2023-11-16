@@ -38,29 +38,20 @@
                             <td>{{ $user->email }}</td>
                             <th>{{ $user->phone }}</th>
                             <td>
-                                {{--  edit  --}}
-                                <x-adminlte-modal id="edit_{{ $user->id }}" title="edit user" theme="purple" icon="fas fa-bolt"
-                                    size='lg' disable-animations>
-                                    @include('user.edit',['user'=>$user])
+                                {{--  Edit  --}}
+                                <x-adminlte-modal id="edit_{{ $user->id }}" title="edit user" theme="purple"
+                                    icon="fas fa-bolt" size='lg' disable-animations>
+                                    @include('user.edit', ['user' => $user])
                                     <x-slot name="footerSlot">
                                     </x-slot>
                                 </x-adminlte-modal>
-                                <x-adminlte-button label="Edit" data-toggle="modal" data-target="#edit_{{ $user->id }}"
-                                    class="bg-purple" />
+                                <x-adminlte-button label="Edit" data-toggle="modal"
+                                    data-target="#edit_{{ $user->id }}" class="bg-purple" />
+                                {{--  End Edit  --}}
 
-                                {{--  report  --}}
-{{--                                  <x-adminlte-modal id="report" title="Report user" theme="purple" icon="fas fa-bolt"
-                                    size='lg' disable-animations>
-                                    @include('user.report', ['user' => $user])
-                                    <x-slot name="footerSlot">
-                                    </x-slot>
-                                </x-adminlte-modal>
-                                <x-adminlte-button label="Report" data-toggle="modal" data-target="#report"
-                                    class="bg-purple" />  --}}
-
-
-                                <x-adminlte-modal id="delete_{{ $user->id }}" title="delete" theme="purple" icon="fas fa-bolt"
-                                    size='lg' disable-animations>
+                                {{--  delete  --}}
+                                <x-adminlte-modal id="delete_{{ $user->id }}" title="delete" theme="purple"
+                                    icon="fas fa-bolt" size='lg' disable-animations>
                                     <form action="{{ route('user.destroy', $user->id) }}" method="post" class="d-inline">
                                         @method('delete')
                                         @csrf
@@ -70,8 +61,11 @@
                                     <x-slot name="footerSlot">
                                     </x-slot>
                                 </x-adminlte-modal>
-                                <x-adminlte-button label="delete" data-toggle="modal" data-target="#delete_{{ $user->id }}"
-                                    class="bg-purple" />
+                                <x-adminlte-button label="delete" data-toggle="modal"
+                                    data-target="#delete_{{ $user->id }}" class="bg-purple" />
+                                {{-- End  delete  --}}
+                                <a href="{{ route('user.report_of_user', $user->id) }}" class="btn btn-info">Report</a>
+
                             </td>
                         </tr>
                     @endforeach

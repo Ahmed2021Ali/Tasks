@@ -41,6 +41,7 @@
     <x-adminlte-button label="Add SubTask" data-toggle="modal" data-target="#create_sub_task" class="bg-purple" />
     {{--  End add SubTask  --}}
 
+
     {{--  Edit MainTask  --}}
     <x-adminlte-modal id="edit_main_task_{{ $main_task->id }}" title="Edit Main Task" theme="purple" icon="fas fa-bolt"
         size='lg' disable-animations>
@@ -52,6 +53,7 @@
         class="bg-purple" />
     {{--  End Edit MainTask  --}}
 
+
     {{--  Log Message Task  --}}
     <x-adminlte-modal id="log_message_{{ $main_task->main_id }}" title="Log Messages" theme="purple" icon="fas fa-bolt"
         size='lg' disable-animations>
@@ -62,6 +64,17 @@
     <x-adminlte-button label="Log Messages" data-toggle="modal" data-target="#log_message_{{ $main_task->main_id }}"
         class="bg-purple" />
     {{--  End Log Message Task  --}}
+
+
+    {{--  Logs  Task  --}}
+        <x-adminlte-modal id="logs_{{ $main_task->main_id }}" title="Logs Task" size="lg" theme="teal"
+                          icon="fas fa-bell" v-centered static-backdrop scrollable>
+            @include('logs.index', ['logs' => $logs])
+            <x-slot name="footerSlot">
+            </x-slot>
+        </x-adminlte-modal>
+        <x-adminlte-button label="Logs Task" data-toggle="modal" data-target="#logs_{{ $main_task->main_id }}" class="bg-teal"/>
+    {{--  End Logs  Task  --}}
 
 
     <div class="row">
@@ -86,7 +99,7 @@
                 </thead>
                 <tbody>
                     @foreach ($sub_tasks as $task)
-                        @if ($task->extended && ($task->type == 'main' || $task->type == 'sub'))
+                        @if ($task->extended && ($task->type == 'option'))
                             @if ($task->assigned_to == auth()->user()->id)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
@@ -140,7 +153,7 @@
                                 <th>{{ $task->status == 0 ? 'Not Completed' : 'Completed' }}</th>
                                 <td> Has Approved , Task Extended</td>
                             <tr>
-                        @elseif($task->type == 'extended' && $task->extended == null)
+                            @elseif($task->type == 'extended' && $task->extended == null)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $task->title }}</td>
@@ -169,7 +182,7 @@
                                 <th>{{ $task->status == 0 ? 'Not Completed' : 'Completed' }}</th>
                                 <td> Task Extended</td>
                             <tr>
-                        @elseif($task->type == 'reject' && $task->extended != null)
+                            @elseif($task->type == 'reject' && $task->extended != null)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $task->title }}</td>
@@ -184,7 +197,7 @@
                                 <th>{{ $task->status == 0 ? 'Not Completed' : 'Completed' }}</th>
                                 <td> Has Rejected , No Extended Task</td>
                             <tr>
-                        @else
+                            @else
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $task->title }}</td>
@@ -212,10 +225,10 @@
                                 <th>{{ $task->file == null ? 'No' : 'Done' }}</th>
                                 <th>{{ $task->status == 0 ? 'Not Completed' : 'Completed' }}</th>
                                 <td>
+
                                     @if (auth()->user()->id == $task->assigned_by)
                                         @if ($task->status == '0')
                                             {{--  SubTask edit  --}}
-
                                             <x-adminlte-modal id="edit_sub_task_{{ $task->id }}" title="Edit SubTask"
                                                 theme="purple" icon="fas fa-bolt" size='lg' disable-animations>
                                                 @include('task.sub.edit', [
@@ -239,6 +252,18 @@
                                             <a href="{{ route('sub.download_file', $task->id) }}" type="button"
                                                 class="btn btn-info">Preview file</a>
                                         @endif
+                                        {{--  delete Main Task  --}}
+                                        @if (auth()->user()->role == 'admin')
+                                            <x-adminlte-modal id="delete_{{ $task->id }}" title="delete" theme="purple"
+                                                icon="fas fa-bolt" size='lg' disable-animations>
+                                                @include('task.main.delete', ['task' => $task])
+                                                <x-slot name="footerSlot">
+                                                </x-slot>
+                                            </x-adminlte-modal>
+                                            <x-adminlte-button label="delete" data-toggle="modal"
+                                                data-target="#delete_{{ $task->id }}" class="bg-purple" />
+                                        @endif
+                                        {{--  delete Main Task  --}}
                                     @endif
 
                                     @if (auth()->user()->id == $task->assigned_to)

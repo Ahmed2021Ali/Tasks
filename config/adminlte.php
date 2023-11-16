@@ -331,11 +331,13 @@ return [
             'route'  => 'client.index',
             'icon' => 'fas fa-fw fa-lock',
         ],
+
         [
             'text' => 'Show Tasks',
             'route'  => 'task.index',
             'icon' => 'fas fa-fw fa-lock',
         ],
+
     ],
 
     /*

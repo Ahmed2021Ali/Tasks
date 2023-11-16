@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Report;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -21,8 +22,12 @@ class UserSeeder extends Seeder
             ['name' => 'Mohamed','email'=> 'mohamed@gmail.com','password'=>Hash::make('123456789'),'phone'=> '201017786080','role'=>'admin'],
             ['name' => 'Kaled','email'=> 'kaled@gmail.com','password'=>Hash::make('123456789'),'phone'=> '201017786080','role'=>'admin'],
         ];
-        foreach ($users as $user) {
-            User::create($user);
+        foreach ($users as $user)
+        {
+           $user= User::create($user);
+           Report::create([
+            'user_id'=>$user->id,
+           ]);
         }
     }
 }

@@ -27,6 +27,9 @@ return new class extends Migration
             $table->string('status')->default(0);
 
             $table->string('file')->nullable();
+            $table->datetime('delivery_time')->nullable();
+            $table->string('delay_upload_file')->nullable();
+
             $table->datetime('extend_request')->nullable();
 
             $table->string('notify')->nullable();

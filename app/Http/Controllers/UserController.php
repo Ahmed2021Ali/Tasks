@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use App\Models\User;
+use App\Models\Report;
+use App\Http\traits\media;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
 {
+    use media;
     public function index()
     {
         $users=User::all();
@@ -17,9 +21,9 @@ class UserController extends Controller
     {
         $data=$request->except(['_token','password_confirmation']);
        $user= User::create($data);
-/*         Report::create([
+        Report::create([
             'user_id'=>$user->id,
-        ]); */
+        ]);
         return redirect()->back();
     }
     public function update(UpdateUserRequest $request ,$id)
@@ -31,5 +35,12 @@ class UserController extends Controller
     {
         User::where('id',$id)->delete();
         return redirect()->back();
+    }
+    public function report_of_user($id)
+    {
+       $this->report($id);
+       $report= Report::where('user_id',$id)->first();
+       $tasks=Task::where('assigned_to','=',$id)->where('type','main')->OrWhere('type','sub')->get();
+       return view('user.report',compact('report','tasks'));
     }
 }

@@ -3,10 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Report;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
@@ -52,10 +55,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class);
     }
+    */
+
     public function report()
     {
-        return $this->hasOne(Report::class,'user_id');
-    } */
+        return $this->hasOne(Report::class);
+    }
 
     public function get_users()
     {
