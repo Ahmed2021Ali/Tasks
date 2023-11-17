@@ -14,6 +14,7 @@
         "laravel/ui": "^4.2",
         "livewire/livewire": "*",
         "spatie/laravel-activitylog": "^4.7",
+        "spatie/laravel-permission": "^6.1",
         "twilio/sdk": "^7.12"
     },
     "require-dev": {

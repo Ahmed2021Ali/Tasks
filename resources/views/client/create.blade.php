@@ -1,6 +1,6 @@
 
 
-<form action="{{ route('client.store') }}" method="post">
+<form action="{{ route('role.store') }}" method="post">
     @csrf
 
     <div class="mb-3">
