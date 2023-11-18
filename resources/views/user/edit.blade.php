@@ -6,9 +6,9 @@
         <label for="role">Role</label>
         <select name="role" id="role" class="form-control" required>
             <option style="display:none" value="">Selected Role</option>
-            <option {{ $user->role == 'manger' ? 'selected' : '' }} value="manger">Manger</option>
-            <option {{ $user->role == 'admin' ? 'selected' : '' }} value="admin">Admin</option>
-            <option {{ $user->role == 'employee' ? 'selected' : '' }} value="employee">Employee</option>
+            @foreach($roles as $role)
+                <option {{ $user->role == $role ? 'selected' : '' }}  value="{{$role}}">{{$role}}</option>
+            @endforeach
             @error('role')
                 <div class="alert alert-danger">{{ $message }}</div>
             @enderror
@@ -41,6 +41,7 @@
             <div class="alert alert-danger">{{ $message }}</div>
         @enderror
     </div>
+
     <div class="mb-3">
         <label for="password" class="form-label">Conform Password</label>
         <input type="password" class="form-control" value="" name="password_confirmation" id="password"
@@ -62,4 +63,5 @@
      <div class="text-center">
         <button class="btn btn-info" type="submit"> Update </button>
     </div>
+
 </form>

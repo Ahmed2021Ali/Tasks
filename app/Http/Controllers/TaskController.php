@@ -20,11 +20,19 @@ class TaskController extends Controller
     public $user;
     public $task;
 
+
+
+
+
     public function __construct()
     {
         $this->client=new Client();
         $this->user=new User();
         $this->task=new Task();
+
+        $this->middleware('permission:task.store', ['only' => ['store']]);
+        $this->middleware('permission:task.update', ['only' => ['update']]);
+        $this->middleware('permission:task.destroy', ['only' => ['destroy']]);
     }
 
     public function index()

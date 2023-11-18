@@ -48,15 +48,14 @@ Route::middleware('auth')->group(function () {
         Route::DELETE("/delete/{id}", 'destroy')->name('destroy');
     });
     /* Task Route */
-    Route::controller(TaskController::class)->prefix('Task')->as('task.')->group(function () {
-
-        Route::get("/index", 'index')->name('index');
-        Route::post("/Store", 'store')->name('store');
-        Route::put("/update/{id}", 'update')->name('update');
-        Route::delete('/delete/{id}', 'delete')->name('delete');
-
-
-    });
+   // Route::group(['middleware' => ['permission:create_task']], function () {
+        Route::controller(TaskController::class)->prefix('Task')->as('task.')->group(function () {
+            Route::get("/index", 'index')->name('index');
+            Route::post("/Store", 'store')->name('store');
+            Route::put("/update/{id}", 'update')->name('update');
+            Route::delete('/delete/{id}', 'delete')->name('delete');
+        });
+    //});
     /*  SubTask Route */
     Route::controller(SubTaskController::class)->prefix('SubTask')->as('sub.')->group(function () {
 
@@ -76,11 +75,13 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(RoleController::class)->prefix('role')->as('role.')->group(function () {
         Route::get("/index", 'index')->name('index');
-     //   Route::get("/store", 'index')->name('store');
+        Route::post("/store", 'store')->name('store');
+        Route::put("/update/{id}", 'update')->name('update');
+        Route::get("/show/{id}", 'show')->name('show');
+        Route::delete("/destroy/{id}", 'destroy')->name('destroy');
 
     });
 });
-Route::get('create', [\App\Http\Controllers\RoleController::class, 'create']);
 /*  Route::get('index',[WhatsappController::class,'index']);
 Route::get('whatsapp',[WhatsappController::class,'whatsapp']); */
 

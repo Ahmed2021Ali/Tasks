@@ -15,8 +15,7 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
             $name_role = ['admin','manger','employee'];
-            $name_permission = ['create_user','edit_user','delete_user','create_client','edit_client','delete_client','create_task','edit_task','delete_task'];
-
+            $name_permission = ['user.store','user.update','user.destroy','user.report_of_user','client.store','client.update','client.destroy','task.store','task.update','task.destroy'];
                  foreach ($name_role as $role)
                 {
                     $role = Role::create(['name' => $role]);
