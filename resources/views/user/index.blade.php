@@ -84,3 +84,55 @@
         </div>
     </div>
 @stop
+
+@section('js')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('d563fef7992e92090620', {
+            cluster: 'eu'
+        });
+
+        var channel = pusher.subscribe('my-channel');
+        channel.bind('{{ auth()->user()->id }}', function(data) {
+            {{--
+                alert(data.title);
+
+            console.log(data.title)
+            console.log(data.description)
+            console.log(data.user_id)
+
+            const noteTitle = data.title;
+            const noteOptions = {
+                body: data.description,
+                icon: "https://www.simplilearn.com/ice9/free_resources_article_thumb/what_is_image_Processing.jpg",
+            };
+            new Notification(noteTitle, noteOptions);
+             --}}
+
+            console.log(data)
+
+            console.log(data.title)
+            console.log(data.user_id)
+
+
+            Swal.fire({
+                title: data,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                }
+            })
+
+        });
+    </script>
+@stop

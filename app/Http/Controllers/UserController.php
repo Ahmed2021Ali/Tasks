@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\UserNotification;
+use App\Events\MyEvent;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Report;
@@ -41,6 +41,9 @@ class UserController extends Controller
               ...$data,
               'fcm_token'=>$request->_token,
               ]);
+          $title='hello world';
+          $user_id=auth()->user()->id;
+        event(new MyEvent($title,$user_id));
         $user->assignRole($request->input('role'));
         Report::create([
             'user_id'=>$user->id,
