@@ -21,7 +21,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->middleware('permission:user.store', ['only' => ['store']]);
-       // $this->middleware('permission:user.update', ['only' => ['update']]);
+        $this->middleware('permission:user.update', ['only' => ['update']]);
         $this->middleware('permission:user.destroy', ['only' => ['destroy']]);
         $this->middleware('permission:user.report_of_user', ['only' => ['report_of_user']]);
 
@@ -37,14 +37,8 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         $data=$request->except(['_token','password_confirmation']);
-          $user= User::create([
-              ...$data,
-              'fcm_token'=>$request->_token,
-              ]);
-          $title='hello world';
-          $user_id=auth()->user()->id;
-        event(new MyEvent($title,$user_id));
-        $user->assignRole($request->input('role'));
+          $user= User::create([...$data,]);
+          $user->assignRole($request->input('role'));
         Report::create([
             'user_id'=>$user->id,
         ]);

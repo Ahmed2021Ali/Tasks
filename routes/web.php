@@ -30,8 +30,9 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::middleware('auth')->group(function () {
+
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
     /* User Route */
     Route::controller(UserController::class)->prefix('User')->as('user.')->group(function () {
         Route::get("/index", 'index')->name('index');
@@ -48,31 +49,27 @@ Route::middleware('auth')->group(function () {
         Route::DELETE("/delete/{id}", 'destroy')->name('destroy');
     });
     /* Task Route */
-   // Route::group(['middleware' => ['permission:create_task']], function () {
-        Route::controller(TaskController::class)->prefix('Task')->as('task.')->group(function () {
-            Route::get("/index", 'index')->name('index');
-            Route::post("/Store", 'store')->name('store');
-            Route::put("/update/{id}", 'update')->name('update');
-            Route::delete('/delete/{id}', 'delete')->name('delete');
-        });
-    //});
+    Route::controller(TaskController::class)->prefix('Task')->as('task.')->group(function () {
+        Route::get("/index", 'index')->name('index');
+        Route::post("/Store", 'store')->name('store');
+        Route::put("/update/{id}", 'update')->name('update');
+        Route::delete('/delete/{id}', 'delete')->name('delete');
+    });
     /*  SubTask Route */
     Route::controller(SubTaskController::class)->prefix('SubTask')->as('sub.')->group(function () {
-
         Route::get("/index/{main_id}", 'index')->name('index');
         Route::post("/Store/{main_id}", 'store')->name('store');
-        //   Route::put("/update/{id}", 'update')->name('update');
         Route::post("/extend_option/{id}", 'extend_option')->name('extend_option');
         Route::put("/extend_status/{id}", 'extend_status')->name('extend_status');
         Route::put("/upload/file/{id}", 'upload_file')->name('upload_file');
         Route::get("/download/file/{id}", 'download_file')->name('download_file');
         Route::get("/status/{id}", 'status')->name('status');
     });
-    /* log Message Route */
+    /* log Message each Task Route */
     Route::controller(LogMessageController::class)->prefix('log_message')->as('log_message.')->group(function () {
         Route::get("/notify/{id}", 'notify')->name('notify');
     });
-
+    /* Role permissions Route */
     Route::controller(RoleController::class)->prefix('role')->as('role.')->group(function () {
         Route::get("/index", 'index')->name('index');
         Route::post("/store", 'store')->name('store');
@@ -82,6 +79,5 @@ Route::middleware('auth')->group(function () {
 
     });
 });
-/*  Route::get('index',[WhatsappController::class,'index']);
-Route::get('whatsapp',[WhatsappController::class,'whatsapp']); */
+
 
