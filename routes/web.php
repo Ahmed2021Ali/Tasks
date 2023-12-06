@@ -31,7 +31,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::middleware('auth')->group(function () {
-
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     /* User Route */
     Route::controller(UserController::class)->prefix('User')->as('user.')->group(function () {

@@ -23,7 +23,7 @@ class RoleController extends Controller
     {
         $permission = Permission::get();
         $roles = Role::orderBy('id','DESC')->get();
-        return view('premission.index',compact('roles','permission'));
+        return view('roles.index',compact('roles','permission'));
     }
 
     public function store(Request $request)
@@ -47,7 +47,7 @@ class RoleController extends Controller
             ->where("role_has_permissions.role_id",$id)
             ->get();
         //dd($rolePermissions,$role);
-        return view('premission.show',compact('role','rolePermissions'));
+        return view('roles.show',compact('role','rolePermissions'));
     }
 
     public function update(Request $request, $id)

@@ -26,12 +26,5 @@ class Client extends Model
     {
         return $this->hasMany(Task::class);
     }
-/*     public function parent()
-    {
-        return $this->hasMany(ParentTask_id::class);
-    }
-    public function messageLog()
-    {
-        return $this->hasMany(messageLog::class);
-    } */
+
 }
