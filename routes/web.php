@@ -72,9 +72,9 @@ Route::middleware('auth')->group(function () {
     Route::controller(RoleController::class)->prefix('role')->as('role.')->group(function () {
         Route::get("/index", 'index')->name('index');
         Route::post("/store", 'store')->name('store');
-        Route::put("/update/{id}", 'update')->name('update');
-        Route::get("/show/{id}", 'show')->name('show');
-        Route::delete("/destroy/{id}", 'destroy')->name('destroy');
+        Route::put("/update/{role}", 'update')->name('update');
+        Route::get("/show/{role}", 'show')->name('show');
+        Route::delete("/destroy/{role}", 'destroy')->name('destroy');
 
     });
 });

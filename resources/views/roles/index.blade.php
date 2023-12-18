@@ -10,7 +10,7 @@
     <div class="pull-right">
         <x-adminlte-modal id="create" title="Add Role" theme="purple" icon="fas fa-bolt" size='lg'
                           disable-animations>
-            @include('premission.create',['permission'=>$permission])
+            @include('roles.create',['permission'=>$permission])
             <x-slot name="footerSlot">
             </x-slot>
         </x-adminlte-modal>
@@ -33,18 +33,18 @@
                     <x-adminlte-modal id="edit_{{$role->id}}" title="Edit Role" theme="purple"
                                       icon="fas fa-bolt" size='lg'
                                       disable-animations>
-                        @include('premission.edit',['role'=>$role,'permission'=>$permission])
+                        @include('roles.edit',['role'=>$role,'permission'=>$permission])
                         <x-slot name="footerSlot">
                         </x-slot>
                     </x-adminlte-modal>
                     <x-adminlte-button label="Edit Role" data-toggle="modal" data-target="#edit_{{$role->id}}"
                                        class="bg-purple"/>
 
-                    <a class="btn btn-info" href="{{ route('role.show',$role->id) }}">Show Permission</a>
+                    <a class="btn btn-info" href="{{ route('role.show',$role) }}">Permissions</a>
                     @can('role-edit')
                         <a class="btn btn-primary" href="{{ route('roles.edit',$role->id) }}">Edit</a>
                     @endcan
-                    {!! Form::open(['method' => 'DELETE','route' => ['role.destroy', $role->id],'style'=>'display:inline']) !!}
+                    {!! Form::open(['method' => 'DELETE','route' => ['role.destroy', $role],'style'=>'display:inline']) !!}
                     {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
                     {!! Form::close() !!}
                 </td>
