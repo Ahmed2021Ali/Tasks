@@ -22,7 +22,6 @@ class UserController extends Controller
 
     public $user;
 
-
     public function __construct()
     {
         $this->user = new User();
@@ -44,10 +43,10 @@ class UserController extends Controller
     {
         $validatedData=$request->validated();
         $user = User::create([
-            ...Arr::except($validatedData,'password'),
+            ...Arr::except($validatedData,['password']),
             'password' =>  Hash::make($validatedData['password'])
         ]);
-        $user->assignRole($request->input('role'));
+        $user->assignRole($validatedData['role']);
         Report::create(['user_id' => $user->id,]);
         return redirect()->back();
     }
@@ -56,11 +55,11 @@ class UserController extends Controller
     {
         $validatedData=$request->validated();
         $user->update([
-            ...Arr::except($validatedData,'password'),
+            ...Arr::except($validatedData,['password']),
             'password' => $validatedData['password'] ? Hash::make($validatedData['password']) : $user->password,
         ]);
         DB::table('model_has_roles')->where('model_id', $user->id)->delete();
-        $user->assignRole($request->input('role'));
+        $user->assignRole($validatedData['role']);
         return redirect()->back();
     }
 

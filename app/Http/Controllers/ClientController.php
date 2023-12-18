@@ -33,13 +33,13 @@ class ClientController extends Controller
         return redirect()->back()->with(['success'=>'Save successfully']);
     }
 
-    public function update(updateClientRequest $request ,$client)
+    public function update(updateClientRequest $request , Client $client)
     {
         $client->update($request->validated());
         return redirect()->back()->with(['success'=>'Update successfully']);
     }
 
-    public function destroy($client)
+    public function destroy(Client $client)
     {
         $client->delete();
         return redirect()->back()->with(['success'=>'Delete successfully']);
