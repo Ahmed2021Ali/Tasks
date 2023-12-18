@@ -36,7 +36,7 @@
     <div class="mb-3">
         <label for="password" class="form-label">Password</label>
         <input type="password" class="form-control" value="" name="password" id="password"
-            aria-describedby="password" required>
+            aria-describedby="password" >
         @error('password')
             <div class="alert alert-danger">{{ $message }}</div>
         @enderror
@@ -45,7 +45,7 @@
     <div class="mb-3">
         <label for="password" class="form-label">Conform Password</label>
         <input type="password" class="form-control" value="" name="password_confirmation" id="password"
-            aria-describedby="password" required>
+            aria-describedby="password" >
         @error('password')
             <div class="alert alert-danger">{{ $message }}</div>
         @enderror

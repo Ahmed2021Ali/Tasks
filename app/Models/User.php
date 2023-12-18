@@ -57,6 +57,6 @@ class User extends Authenticatable
 
     public function getAllUsers()
     {
-      return User::where('id','!=',auth()->user()->id)->get();
+      return User::all();
     }
 }

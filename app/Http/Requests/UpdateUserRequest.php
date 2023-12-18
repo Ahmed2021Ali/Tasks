@@ -26,7 +26,7 @@ class UpdateUserRequest extends FormRequest
             'email'=>['required'],
             'role'=>'required',
             'phone'=>'required',
-            'password'=>['required','confirmed','min:8'],
+            'password'=>['nullable','confirmed','min:8'],
         ];
     }
 }
