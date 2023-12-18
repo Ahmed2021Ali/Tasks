@@ -63,9 +63,8 @@ class SubTaskController extends Controller
         }
     }
 
-    public function extend_option(Request $request,$id)
+    public function extend_option(Request $request,Task $task)
     {
-        $task = Task::where('id',$id)->first();
         $current_time = now();
         if($request->extend_request == $task->dateline ) {
             return redirect()->back()->with(['error'=>'Request DateLine Not Valid']);
@@ -117,13 +116,11 @@ class SubTaskController extends Controller
         return redirect()->back()->with(['success'=>'Save Date successfully']);
     }
 
-    public function upload_file(Request $request,$id)
+    public function upload_file(Request $request,Task $task)
     {
         $current_time=now();
-
-        $task = Task::where('id',$id)->first();
         if($task) {
-            $file = $request->file->store('Files_Task', 'public'); // Store each photo in the 'public/attachment' directory
+            $file = $request->file->store('Files_Task', 'public');
             $task->update([
                 'file'=>$file,
                 'delivery_time'=>$current_time->format('Y-m-d H:i:s'),
@@ -134,16 +131,14 @@ class SubTaskController extends Controller
         return redirect()->back()->with(['success'=>'Save File successfully']);
     }
 
-    public function download_file(Request $request,$id)
+    public function download_file(Request $request,Task $task)
     {
-        $task_file = Task::where('id',$id)->first()->file;
-        $file = storage_path('app/public/' . $task_file);
+        $file = storage_path('app/public/' . $task->file);
         return response()->file($file);
     }
 
-    public function status($id)
+    public function status(Task $task)
     {
-        $task = Task::where('id',$id)->first();
         if($task->type == "main") {
             $sub_tasks = Task::select('status')->where('status','0')->where('type','sub')->where('main_id',$task->main_id)->get();
             if(!$sub_tasks->isEmpty()) {

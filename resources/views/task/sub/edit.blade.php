@@ -1,4 +1,4 @@
-<form action="{{ route('task.update', $task->id) }}" method="post">
+<form action="{{ route('task.update', $task) }}" method="post">
     @method('put')
     @csrf
 

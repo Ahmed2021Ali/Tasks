@@ -58,11 +58,11 @@ Route::middleware('auth')->group(function () {
     Route::controller(SubTaskController::class)->prefix('SubTask')->as('sub.')->group(function () {
         Route::get("/index/{main_id}", 'index')->name('index');
         Route::post("/Store/{main_id}", 'store')->name('store');
-        Route::post("/extend_option/{id}", 'extend_option')->name('extend_option');
+        Route::post("/extend_option/{task}", 'extend_option')->name('extend_option');
         Route::put("/extend_status/{id}", 'extend_status')->name('extend_status');
-        Route::put("/upload/file/{id}", 'upload_file')->name('upload_file');
-        Route::get("/download/file/{id}", 'download_file')->name('download_file');
-        Route::get("/status/{id}", 'status')->name('status');
+        Route::put("/upload/file/{task}", 'upload_file')->name('upload_file');
+        Route::get("/download/file/{task}", 'download_file')->name('download_file');
+        Route::get("/status/{task}", 'status')->name('status');
     });
     /* log Message each Task Route */
     Route::controller(LogMessageController::class)->prefix('log_message')->as('log_message.')->group(function () {

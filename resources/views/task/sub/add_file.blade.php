@@ -1,4 +1,4 @@
-<form action="{{ route('sub.upload_file', $task->id) }}" method="post" enctype="multipart/form-data">
+<form action="{{ route('sub.upload_file', $task) }}" method="post" enctype="multipart/form-data">
     @method('put')
     @csrf
     <div class="mb-3">

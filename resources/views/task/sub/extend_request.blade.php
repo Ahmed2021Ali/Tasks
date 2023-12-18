@@ -1,4 +1,4 @@
-<form action="{{ route('sub.extend_option', $task->id) }}" method="post">
+<form action="{{ route('sub.extend_option', $task) }}" method="post">
     @csrf
     <div class="mb-3">
         <label for="description" class="form-label">description</label>

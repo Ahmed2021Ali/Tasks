@@ -243,13 +243,13 @@
                                             {{--  End SubTask edit  --}}
 
                                             @if ($task->file)
-                                                <a href="{{ route('sub.status', $task->id) }}" type="button"
+                                                <a href="{{ route('sub.status', $task) }}" type="button"
                                                     class="btn btn-warning">Status</a>
                                             @endif
                                         @endif
 
                                         @if ($task->file)
-                                            <a href="{{ route('sub.download_file', $task->id) }}" type="button"
+                                            <a href="{{ route('sub.download_file', $task) }}" type="button"
                                                 class="btn btn-info">Preview file</a>
                                         @endif
                                         {{--  delete Main Task  --}}
