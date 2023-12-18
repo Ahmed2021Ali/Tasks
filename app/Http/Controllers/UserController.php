@@ -26,10 +26,10 @@ class UserController extends Controller
     public function __construct()
     {
         $this->user = new User();
-      //  $this->middleware('permission:user.store', ['only' => ['store']]);
-        //$this->middleware('permission:user.update', ['only' => ['update']]);
-        //$this->middleware('permission:user.destroy', ['only' => ['destroy']]);
-        //$this->middleware('permission:user.report_of_user', ['only' => ['report_of_user']]);
+        $this->middleware('permission:user.store', ['only' => ['store']]);
+        $this->middleware('permission:user.update', ['only' => ['update']]);
+        $this->middleware('permission:user.destroy', ['only' => ['destroy']]);
+        $this->middleware('permission:user.report_of_user', ['only' => ['report_of_user']]);
     }
 
     public function index()
