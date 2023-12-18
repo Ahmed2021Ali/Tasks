@@ -1,4 +1,4 @@
-<form action="{{ route('task.delete', $task->id) }}" method="post" class="d-inline">
+<form action="{{ route('task.delete', $task) }}" method="post" class="d-inline">
     @method('delete')
     @csrf
     <h3> Are you sure to delete ? </h3>

@@ -27,6 +27,7 @@ class updateTaskRequest extends FormRequest
             'request_at'=>'required',
             'dateline'=>'required',
             'client_id'=>'required',
-            'assigned_to'=>'required',        ];
+            'assigned_to'=>'required',
+            ];
     }
 }

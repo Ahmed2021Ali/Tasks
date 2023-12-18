@@ -10,8 +10,11 @@ use Spatie\Activitylog\Models\Activity;
 
 class ClientController extends Controller
 {
+    public $client;
     public function __construct()
     {
+        $this->client = new Client;
+
         $this->middleware('permission:client.store', ['only' => ['store']]);
         $this->middleware('permission:client.update', ['only' => ['update']]);
         $this->middleware('permission:client.destroy', ['only' => ['destroy']]);
@@ -19,26 +22,26 @@ class ClientController extends Controller
 
     public function index()
     {
-        $clients=Client::all();
-        return view("client.index",compact('clients'));
+        return view("client.index",[
+            'clients' => $this->client->getAllClients(),
+            ]);
     }
 
     public function store(StoreClientRequest $request)
     {
-        $data=$request->except(['_token','conform']);
-        Client::create($data);
+        Client::create($request->validated());
         return redirect()->back()->with(['success'=>'Save successfully']);
     }
 
-    public function update(updateClientRequest $request ,$id)
+    public function update(updateClientRequest $request ,$client)
     {
-        Client::where('id',$id)->update($request->except(['_token','_method']));
+        $client->update($request->validated());
         return redirect()->back()->with(['success'=>'Update successfully']);
     }
 
-    public function destroy($id)
+    public function destroy($client)
     {
-        Client::where('id',$id)->delete();
+        $client->delete();
         return redirect()->back()->with(['success'=>'Delete successfully']);
     }
 }

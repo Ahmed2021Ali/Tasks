@@ -36,23 +36,23 @@ Route::middleware('auth')->group(function () {
     Route::controller(UserController::class)->prefix('User')->as('user.')->group(function () {
         Route::get("/index", 'index')->name('index');
         Route::post("/Store", 'store')->name('store');
-        Route::put("/update/{id}", 'update')->name('update');
-        Route::DELETE("/delete/{id}", 'destroy')->name('destroy');
+        Route::put("/update/{user}", 'update')->name('update');
+        Route::DELETE("/delete/{user}", 'destroy')->name('destroy');
         Route::get('report_of_user/{id}', 'report_of_user')->name('report_of_user');
     });
     /*  Client Route */
     Route::controller(ClientController::class)->prefix('Client')->as('client.')->group(function () {
         Route::get("/index", 'index')->name('index');
         Route::post("/Store", 'store')->name('store');
-        Route::put("/update/{id}", 'update')->name('update');
-        Route::DELETE("/delete/{id}", 'destroy')->name('destroy');
+        Route::put("/update/{client}", 'update')->name('update');
+        Route::DELETE("/delete/{client}", 'destroy')->name('destroy');
     });
     /* Task Route */
     Route::controller(TaskController::class)->prefix('Task')->as('task.')->group(function () {
         Route::get("/index", 'index')->name('index');
         Route::post("/Store", 'store')->name('store');
-        Route::put("/update/{id}", 'update')->name('update');
-        Route::delete('/delete/{id}', 'delete')->name('delete');
+        Route::put("/update/{task}", 'update')->name('update');
+        Route::delete('/delete/{task}', 'delete')->name('delete');
     });
     /*  SubTask Route */
     Route::controller(SubTaskController::class)->prefix('SubTask')->as('sub.')->group(function () {

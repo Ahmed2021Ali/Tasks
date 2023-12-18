@@ -1,5 +1,5 @@
 
-<form action="{{ route('client.update', $client->id) }}" method="post">
+<form action="{{ route('client.update', $client) }}" method="post">
     @method('put')
     @csrf
 

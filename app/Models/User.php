@@ -49,22 +49,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-/*     public function parent()
-    {
-        return $this->hasMany(User::class);
-    }
-    public function task()
-    {
-        return $this->hasMany(Task::class);
-    }
-    */
 
     public function report()
     {
         return $this->hasOne(Report::class);
     }
 
-    public function get_users()
+    public function getAllUsers()
     {
       return User::where('id','!=',auth()->user()->id)->get();
     }

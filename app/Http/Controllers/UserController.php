@@ -18,52 +18,53 @@ class UserController extends Controller
 {
     use media;
 
+    public $user;
+
+
     public function __construct()
     {
+        $this->user = new User();
         $this->middleware('permission:user.store', ['only' => ['store']]);
         $this->middleware('permission:user.update', ['only' => ['update']]);
         $this->middleware('permission:user.destroy', ['only' => ['destroy']]);
         $this->middleware('permission:user.report_of_user', ['only' => ['report_of_user']]);
-
     }
 
     public function index()
     {
-        $users=User::all();
-        $roles = Role::pluck('name','name')->all();
-        return view('user.index',compact('users','roles'));
+        return view('user.index', [
+            'users' => $this->user->getAllUsers(),
+            'roles' => Role::pluck('name', 'name')->all()
+        ]);
     }
 
     public function store(StoreUserRequest $request)
     {
-        $data=$request->except(['_token','password_confirmation']);
-          $user= User::create([...$data,]);
-          $user->assignRole($request->input('role'));
-        Report::create([
-            'user_id'=>$user->id,
-        ]);
+        $user = User::create([...$request->validated()]);
+        $user->assignRole($request->input('role'));
+        Report::create(['user_id' => $user->id,]);
         return redirect()->back();
     }
 
-    public function update(UpdateUserRequest $request ,$id)
+    public function update(UpdateUserRequest $request, $user)
     {
-        User::where('id',$id)->update($request->except(['_token','password_confirmation','_method']));
-        $user = User::find($id);
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
+        $user->update($request->validated());
+        DB::table('model_has_roles')->where('model_id', $user->id)->delete();
         $user->assignRole($request->input('role'));
         return redirect()->back();
     }
 
-    public function destroy($id)
+    public function destroy($user)
     {
-        User::where('id',$id)->delete();
+        $user->delete();
         return redirect()->back();
     }
+
     public function report_of_user($id)
     {
-       $this->report($id);
-       $report= Report::where('user_id',$id)->first();
-       $tasks=Task::where('assigned_to','=',$id)->where('type','main')->OrWhere('type','sub')->get();
-       return view('user.report',compact('report','tasks'));
+        $this->report($id);
+        $report = Report::where('user_id', $id)->first();
+        $tasks = Task::where('assigned_to', '=', $id)->where('type', 'main')->OrWhere('type', 'sub')->get();
+        return view('user.report', compact('report', 'tasks'));
     }
 }

@@ -18,10 +18,15 @@ class Client extends Model
         'phone',
     ];
 
-    public function get_clients()
+    public function getAllClients()
     {
          return Client::all();
     }
+    public function getClient($id)
+    {
+        return Client::where('id' , $id)->first();
+    }
+
     public function task()
     {
         return $this->hasMany(Task::class);

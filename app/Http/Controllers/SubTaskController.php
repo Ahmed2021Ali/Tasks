@@ -28,8 +28,8 @@ class SubTaskController extends Controller
 
     public function index($main_id)
     {
-        $users=$this->user->get_users();
-        $clients=$this->client->get_clients();
+        $users=$this->user->getAllUsers();
+        $clients=$this->client->getAllClients();
         $main_task =$this->main_task_id->get_main_task($main_id);
         $sub_tasks = Task::where('main_id',$main_id)->get();
         $log_messages=LogMessage::where('main_id',$main_id)->get();
@@ -51,18 +51,14 @@ class SubTaskController extends Controller
                  'client_id'=>$main_task->client_id,
                 ]);
                 $this->activities($task->main_id);
-                if($request->notify)
-                {
+                if($request->notify) {
                     $this->notify_all_operation_store_task($task);
                 }
-                else
-                {
+                else {
                     $this->notify_without_client_operation_store_task($task);
                 }
              return redirect()->back()->with(['success'=>'Add SubTask successfully']);
-        }
-        else
-        {
+        } else {
              return redirect()->back()->with(['error'=>'date not invalid']);
         }
     }
@@ -71,11 +67,9 @@ class SubTaskController extends Controller
     {
         $task = Task::where('id',$id)->first();
         $current_time = now();
-        if($request->extend_request == $task->dateline  /* || $task->dateline > $request->extend_request */)
-        {
+        if($request->extend_request == $task->dateline ) {
             return redirect()->back()->with(['error'=>'Request DateLine Not Valid']);
-        }
-        else{
+        } else{
             Task::create([
                 'title'=>'Extend Dateline',
                 'description'=>$request->description,
@@ -98,8 +92,7 @@ class SubTaskController extends Controller
     {
         $task = Task::where('id',$id)->first();
         $task_old=Task::where('id',$task->extended)->first();
-        if($request->value == "prove")
-        {
+        if($request->value == "prove") {
           $task_notify = Task::create([
                 'title'=>$task_old->title,
                 'client_id'=>$task_old->client_id,
@@ -116,13 +109,9 @@ class SubTaskController extends Controller
                 $task_old->update(['status'=>'1','type'=>'extended']);
             $this->notify_without_client_operation_store_task($task_notify);
 
-        }
-        elseif($request->value == "reject")
-        {
+        } elseif($request->value == "reject") {
             Task::where('id',$task->id)->update(['status'=>'1','type'=>'reject']);
-        }
-        else
-        {
+        } else {
             return redirect()->back()->with(['error'=>'error 404']);
         }
         return redirect()->back()->with(['success'=>'Save Date successfully']);
@@ -133,8 +122,7 @@ class SubTaskController extends Controller
         $current_time=now();
 
         $task = Task::where('id',$id)->first();
-        if($task)
-        {
+        if($task) {
             $file = $request->file->store('Files_Task', 'public'); // Store each photo in the 'public/attachment' directory
             $task->update([
                 'file'=>$file,
@@ -156,28 +144,21 @@ class SubTaskController extends Controller
     public function status($id)
     {
         $task = Task::where('id',$id)->first();
-        if($task->type == "main")
-        {
+        if($task->type == "main") {
             $sub_tasks = Task::select('status')->where('status','0')->where('type','sub')->where('main_id',$task->main_id)->get();
-            if(!$sub_tasks->isEmpty())
-            {
+            if(!$sub_tasks->isEmpty()) {
                 return redirect()->back()->with(['error'=>'Not Change, please check Status Subtask']);
-            }
-            else
-            {
+            } else {
                 $task->update(['status'=>1]);
                 $this->activities($task->main_id);
 
             }
         }
-        elseif($task->type == "sub")
-        {
+        elseif($task->type == "sub") {
             $task->update(['status'=>1]);
             $this->activities($task->main_id);
 
-        }
-        else
-        {
+        } else {
             return false;
         }
         return redirect()->back()->with(['success'=>'Change Status successfully']);

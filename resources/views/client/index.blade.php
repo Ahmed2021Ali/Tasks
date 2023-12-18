@@ -46,7 +46,7 @@
 
                                 <x-adminlte-modal id="delete_{{ $client->id }}" title="delete" theme="purple" icon="fas fa-bolt"
                                     size='lg' disable-animations>
-                                    <form action="{{ route('client.destroy', $client->id) }}" method="post" class="d-inline">
+                                    <form action="{{ route('client.destroy', $client) }}" method="post" class="d-inline">
                                         @method('delete')
                                         @csrf
                                         <h3> Are you sure to delete ? </h3>
