@@ -11,27 +11,44 @@ use Spatie\Activitylog\Models\Activity;
 trait media
 {
 
-    // operation store task , Notify all user (Assigned To and Assigned By) and client
-    public function notify_all_operation_store_task($task)
+    public function  dispatchAll($task)
     {
-        try
-        {
-            $message=$task->title;
-            // send message to client
-            $phone_client=$task->client->phone;
-            // send message to assigned_to_user
-            $phone_assigned_to_user=$task->assigned_to_user->phone;
-            // send message to assigned_by_user
-            $phone_assigned_by_user=$task->assigned_by_user->phone;
-            // dd($phone_client,$message_client,$phone_assigned_to_user,$message_assigned_to_user,$phone_assigned_by_user,$message_assigned_by_user);
-           dispatch(function() use ($phone_client,$phone_assigned_to_user,$phone_assigned_by_user,$message){
+        $message=$task->title;
+        // send message to client
+        $phone_client=$task->client->phone;
+        // send message to assigned_to_user
+        $phone_assigned_to_user=$task->assigned_to_user->phone;
+        // send message to assigned_by_user
+        $phone_assigned_by_user=$task->assigned_by_user->phone;
+        // dd($phone_client,$message_client,$phone_assigned_to_user,$message_assigned_to_user,$phone_assigned_by_user,$message_assigned_by_user);
+        dispatch(function() use ($phone_client,$phone_assigned_to_user,$phone_assigned_by_user,$message){
             Artisan::call('app:notify-client', ['phone' => $phone_client, 'message' => $message]);
             Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
             Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
-           });
+        });
+    }
+
+    public function dispatchWithoutClient($task) {
+        $message=$task->title;
+        //send message to assigned_to_user
+        $phone_assigned_to_user=$task->assigned_to_user->phone;
+        //send message to assigned_by_user
+        $phone_assigned_by_user=$task->assigned_by_user->phone;
+
+        dispatch(function() use ($phone_assigned_to_user,$phone_assigned_by_user,$message){
+            Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
+            Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
+        });
+    }
+
+    // operation store task , Notify all user (Assigned To and Assigned By) and client
+    public function notify_all_operation_store_task($task)
+    {
+        try {
+           $this->dispatchAll($task);
             LogMessage::create([
                 'task_id'=>$task->id,
-                'message'=>$message,
+                'message'=>$task->title,
                 'client_id'=>$task->client_id,
                 'assigned_to'=>$task->assigned_to,
                 'assigned_by'=>$task->assigned_by,
@@ -40,11 +57,10 @@ trait media
             ]);
             $this->activities($task->main_id);
         }
-         catch (\Exception $e)
-        {
+         catch (\Exception $e) {
             LogMessage::create([
                 'task_id'=>$task->id,
-                'message'=>$message,
+                'message'=>$task->title,
                 'client_id'=>$task->client_id,
                 'assigned_to'=>$task->assigned_to,
                 'assigned_by'=>$task->assigned_by,
@@ -58,34 +74,21 @@ trait media
     // operation store task , Notify all user (Assigned To and Assigned By)
     public function notify_without_client_operation_store_task($task)
     {
-        try
-        {
-            $message=$task->title;
-            //send message to assigned_to_user
-            $phone_assigned_to_user=$task->assigned_to_user->phone;
-            //send message to assigned_by_user
-            $phone_assigned_by_user=$task->assigned_by_user->phone;
-
-            dispatch(function() use ($phone_assigned_to_user,$phone_assigned_by_user,$message){
-              Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
-              Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
-          });
+        try {
+            $this->dispatchWithoutClient($task);
             LogMessage::create([
                 'task_id'=>$task->id,
-                'message'=>$message,
+                'message'=>$task->title,
                 'assigned_to'=>$task->assigned_to,
                 'assigned_by'=>$task->assigned_by,
                 'status'=>'Done',
                 'main_id'=>$task->main_id,
             ]);
             $this->activities($task->main_id);
-
-        }
-         catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             LogMessage::create([
                 'task_id'=>$task->id,
-                'message'=>$message,
+                'message'=>$task->title,
                 'assigned_to'=>$task->assigned_to,
                 'assigned_by'=>$task->assigned_by,
                 'status'=>'Failed',
@@ -100,33 +103,20 @@ trait media
      public function notify_without_client_operation_update_task($task)
     {
         $logMessage=LogMessage::where('task_id', $task->id)->first();
-            try
-            {
-                $message=$task->title;
-                //send message to assigned_to_user
-                $phone_assigned_to_user=$task->assigned_to_user->phone;
-                //send message to assigned_by_user
-                $phone_assigned_by_user=$task->assigned_by_user->phone;
-
-                dispatch(function() use ($phone_assigned_to_user,$phone_assigned_by_user,$message){
-                Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
-                Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
-                });
+            try {
+                $this->dispatchWithoutClient($task);
                 $logMessage->update([
                     'task_id'=>$task->id,
-                    'message'=>$message,
+                    'message'=>$task->title,
                     'assigned_to'=>$task->assigned_to,
                     'assigned_by'=>$task->assigned_by,
                     'status'=>'Done'
                 ]);
                 $this->activities($task->main_id);
-
-            }
-             catch (\Exception $e)
-            {
+            } catch (\Exception $e) {
                 $logMessage->update([
                     'task_id'=>$task->id,
-                    'message'=>$message,
+                    'message'=>$task->title,
                     'assigned_to'=>$task->assigned_to,
                     'assigned_by'=>$task->assigned_by,
                     'status'=>'Failed'
@@ -139,24 +129,11 @@ trait media
     public function notify_all_operation_update_task($task)
     {
         $logMessage=LogMessage::where('task_id', $task->id)->first();
-        try
-        {
-            $message=$task->title;
-            // send message to client
-            $phone_client=$task->client->phone;
-            // send message to assigned_to_user
-            $phone_assigned_to_user=$task->assigned_to_user->phone;
-            // send message to assigned_by_user
-            $phone_assigned_by_user=$task->assigned_by_user->phone;
-            // dd($phone_client,$message_client,$phone_assigned_to_user,$message_assigned_to_user,$phone_assigned_by_user,$message_assigned_by_user);
-           dispatch(function() use ($phone_client,$phone_assigned_to_user,$phone_assigned_by_user,$message){
-            Artisan::call('app:notify-client', ['phone' => $phone_client, 'message' => $message]);
-            Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
-            Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
-           });
+        try {
+            $this->dispatchAll($task);
             $logMessage->update([
                 'task_id'=>$task->id,
-                'message'=>$message,
+                'message'=>$task->title,
                 'client_id'=>$task->client_id,
                 'assigned_to'=>$task->assigned_to,
                 'assigned_by'=>$task->assigned_by,
@@ -164,18 +141,16 @@ trait media
             ]);
             $this->activities($task->main_id);
         }
-         catch (\Exception $e)
-        {
+         catch (\Exception $e) {
             $logMessage->update([
                 'task_id'=>$task->id,
-                'message'=>$message,
+                'message'=>$task->title,
                 'client_id'=>$task->client_id,
                 'assigned_to'=>$task->assigned_to,
                 'assigned_by'=>$task->assigned_by,
                 'status'=>'Failed'
             ]);
             $this->activities($task->main_id);
-
         }
     }
     // operation update task , Notify  client Only
@@ -213,28 +188,15 @@ trait media
     // operation filed Notify , Notify  All User and Client
     public function notify_all_again($log_message)
     {
+        $task = Task::where('task_id', $log_message->task_id)->first();
         try
         {
-            $message=$log_message->message;
-            // send message to client
-            $phone_client=$log_message->client->phone;
-            // send message to assigned_to_user
-            $phone_assigned_to_user=$log_message->assigned_to_user->phone;
-            // send message to assigned_by_user
-            $phone_assigned_by_user=$log_message->assigned_by_user->phone;
-            // dd($phone_client,$message_client,$phone_assigned_to_user,$message_assigned_to_user,$phone_assigned_by_user,$message_assigned_by_user);
-           dispatch(function() use ($phone_client,$phone_assigned_to_user,$phone_assigned_by_user,$message){
-            Artisan::call('app:notify-client', ['phone' => $phone_client, 'message' => $message]);
-            Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
-            Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
-           });
+            $this->dispatchAll($task);
             $log_message->update([
                 'status'=>'Done'
             ]);
             $this->activities($log_message->task->main_id);
-        }
-         catch (\Exception $e)
-         {
+        } catch (\Exception $e) {
              $log_message->update([
                 'status'=>'Failed'
             ]);
@@ -244,25 +206,14 @@ trait media
         // operation filed Notify , Notify all user (Assigned To and Assigned By)
     public function notify_without_client_again($log_message)
     {
-        try
-        {
-            $message=$log_message->message;
-            // send message to assigned_to_user
-            $phone_assigned_to_user=$log_message->assigned_to_user->phone;
-            // send message to assigned_by_user
-            $phone_assigned_by_user=$log_message->assigned_by_user->phone;
-            // dd($phone_client,$message_client,$phone_assigned_to_user,$message_assigned_to_user,$phone_assigned_by_user,$message_assigned_by_user);
-           dispatch(function() use ($phone_assigned_to_user,$phone_assigned_by_user,$message){
-            Artisan::call('app:notify-client', ['phone' => $phone_assigned_to_user, 'message' => $message]);
-            Artisan::call('app:notify-client', ['phone' => $phone_assigned_by_user, 'message' => $message]);
-           });
+        $task = Task::where('task_id', $log_message->task_id)->first();
+        try {
+            $this->dispatchWithoutClient($task);
             $log_message->update([
                 'status'=>'Done'
             ]);
             $this->activities($log_message->task->main_id);
-        }
-         catch (\Exception $e)
-         {
+        } catch (\Exception $e) {
              $log_message->update([
                 'status'=>'Failed'
             ]);
@@ -304,5 +255,7 @@ trait media
         $activity->log_name=$main_id;
         $activity->save();
     }
+
+
 
 }

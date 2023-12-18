@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\updateTaskRequest;
 use App\Http\traits\media;
 use App\Models\Task;
@@ -10,9 +11,6 @@ use App\Models\Client;
 use App\Models\LogMessage;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreTaskRequest;
-use Illuminate\Support\Facades\Artisan;
-use Spatie\Activitylog\Models\Activity;
 
 class TaskController extends Controller
 {
@@ -21,7 +19,6 @@ class TaskController extends Controller
     public $client;
     public $user;
     public $task;
-
 
     public function __construct()
     {
@@ -42,27 +39,22 @@ class TaskController extends Controller
         return view('task.main.index', compact('main_tasks', 'clients', 'users'));
     }
 
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $current_time = now();
-        if ($request->dateline > $current_time->format('Y-m-d H:i:s')) {
-            $uuid = Str::random(16);
-            $task = Task::create([
-                ...$request->except(['_token', 'notify']),
-                'assigned_by' => auth()->user()->id,
-                'type' => 'main',
-                'main_id' => $uuid,
-            ]);
-            $this->activities($task->main_id);
-            if ($request->notify) {
-                $this->notify_all_operation_store_task($task);
-            } else {
-                $this->notify_without_client_operation_store_task($task);
-            }
-            return redirect()->back()->with(['success' => 'Add Task successfully']);
+        $uuid = Str::random(16);
+        $task = Task::create([
+            ...$request->validated(),
+            'assigned_by' => auth()->user()->id,
+            'type' => 'main',
+            'main_id' => $uuid,
+        ]);
+        $this->activities($task->main_id);
+        if ($request->notify) {
+            $this->notify_all_operation_store_task($task);
         } else {
-            return redirect()->back()->with(['error' => 'date not invalid']);
+            $this->notify_without_client_operation_store_task($task);
         }
+        return redirect()->back()->with(['success' => 'Add Task successfully']);
     }
 
     public function update(UpdateTaskRequest $request, Task $task)
@@ -83,7 +75,6 @@ class TaskController extends Controller
             } else {
                 $this->notify_all_operation_store_task($task);
             }
-
         } else {
             if ($log_message) {
                 if ($log_message->status == "Failed") {
@@ -94,7 +85,6 @@ class TaskController extends Controller
             }
         }
         return redirect()->back()->with(['success' => 'Update Task successfully']);
-
     }
 
     public function delete(Task $task)
